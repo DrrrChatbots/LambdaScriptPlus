@@ -1,8 +1,14 @@
-lambda.js: lambda.jison
-	jison lambda.jison
+.PHONY: test clean
 
-test: lambda.js
-	node lambda.js test.js
+all: dist
+	@#jison src/lambda.jison
+	src/jison-lex/cli.js -o dist/lambda-lexer.js --module-type commonjs src/lambda.jisonlex
+
+dist:
+	@mkdir -p dist
+
+test:
+	@bash test/lexer/test.sh
 
 clean:
-	rm lambda.js
+	rm -rf dist

@@ -1,0 +1,3 @@
+[submodule "src/jison-lex"]
+	path = src/jison-lex
+	url = git@github.com:DrrrChatbots/jison-lex.git
