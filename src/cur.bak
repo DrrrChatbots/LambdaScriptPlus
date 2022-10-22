@@ -1,0 +1,405 @@
+Delimiter : ';' { };
+
+Literal
+    : 'true' { }
+    | 'false' { }
+    | 'number' { }
+    | 'string' { }
+    ;
+
+Property
+    : 'ident' ':' AssignmentExpr { }
+    | 'string' ':' AssignmentExpr { }
+    | 'number' ':' AssignmentExpr { }
+    ;
+
+PropertyList
+    : Property { }
+    | PropertyList ',' Property { }
+    ;
+
+PrimaryExpr
+    : PrimaryExprNoBrace { }
+    /* | '{' '}' */
+    /* | '{' PropertyList '}' */
+    /* | '{' PropertyList ',' '}' */
+    ;
+
+PrimaryExprNoBrace
+    : Literal { }
+    | ArrayLiteral { }
+    | 'ident' { }
+    | '(' Expr ')'
+    ;
+
+ArrayLiteral
+    : '[' ElisionOpt ']' { }
+    | '[' ElementList ']' { }
+    | '[' ElementList ',' ElisionOpt ']' { }
+    ;
+
+ElementList
+    : ElisionOpt AssignmentExpr { }
+    | ElementList ',' ElisionOpt AssignmentExpr { }
+    ;
+
+ElisionOpt
+    : { }
+    | Elision { }
+    ;
+
+Elision
+    : ',' { }
+    | Elision ',' { }
+    ;
+
+MemberExpr
+    : PrimaryExpr { }
+    | FunctionExpr { }
+    | MemberExpr '[' Expr ']' { }
+    | MemberExpr '.' 'ident' { }
+    | 'new' MemberExpr Arguments { }
+    ;
+
+MemberExprNoBF
+    : PrimaryExprNoBrace { }
+    | MemberExprNoBF '[' Expr ']' { }
+    | MemberExprNoBF '.' 'ident' { }
+    | 'new' MemberExpr Arguments { }
+    ;
+
+NewExpr
+    : 'new' NewExpr { }
+    | MemberExpr { }
+    ;
+
+NewExprNoBF
+    : 'new' NewExpr { }
+    | MemberExprNoBF { }
+    ;
+
+CallExpr
+    : MemberExpr Arguments { }
+    | CallExpr Arguments { }
+    | CallExpr '[' Expr ']' { }
+    | CallExpr '.' 'ident' { }
+    ;
+
+CallExprNoBF
+    : MemberExprNoBF Arguments { }
+    | CallExprNoBF Arguments { }
+    | CallExprNoBF '[' Expr ']' { }
+    | CallExprNoBF '.' 'ident' { }
+    ;
+
+Arguments
+    : '(' ')' { }
+    | '(' ArgumentList ')' { }
+    ;
+
+ArgumentList
+    : AssignmentExpr { }
+    | ArgumentList ',' AssignmentExpr { }
+    ;
+
+LeftHandSideExpr
+    : NewExpr { }
+    | CallExpr { }
+    ;
+
+LeftHandSideExprNoBF
+    : NewExprNoBF { }
+    | CallExprNoBF { }
+    ;
+
+PostfixExpr
+    : LeftHandSideExpr { }
+    | LeftHandSideExpr '++' { }
+    | LeftHandSideExpr '--' { }
+    ;
+
+PostfixExprNoBF
+    : LeftHandSideExprNoBF { }
+    | LeftHandSideExprNoBF '++' { }
+    | LeftHandSideExprNoBF '--' { }
+    ;
+
+UnaryExprCommon
+    : 'delete' UnaryExpr { }
+    | '++' UnaryExpr { }
+    | '--' UnaryExpr { }
+    | '+' UnaryExpr { }
+    | '-' UnaryExpr { }
+    | '~' UnaryExpr { }
+    | '!' UnaryExpr { }
+    ;
+
+UnaryExpr
+    : PostfixExpr { }
+    | UnaryExprCommon { }
+    ;
+
+UnaryExprNoBF
+    : PostfixExprNoBF { }
+    | UnaryExprCommon { }
+    ;
+
+MultiplicativeExpr
+    : UnaryExpr { }
+    | MultiplicativeExpr '*' UnaryExpr { }
+    | MultiplicativeExpr '/' UnaryExpr { }
+    | MultiplicativeExpr '%' UnaryExpr { }
+    ;
+
+MultiplicativeExprNoBF
+    : UnaryExprNoBF { }
+    | MultiplicativeExprNoBF '*' UnaryExpr { }
+    | MultiplicativeExprNoBF '/' UnaryExpr { }
+    | MultiplicativeExprNoBF '%' UnaryExpr { }
+    ;
+
+AdditiveExpr
+    : MultiplicativeExpr { }
+    | AdditiveExpr '+' MultiplicativeExpr { }
+    | AdditiveExpr '-' MultiplicativeExpr { }
+    ;
+
+AdditiveExprNoBF
+    : MultiplicativeExprNoBF { }
+    | AdditiveExprNoBF '+' MultiplicativeExpr { }
+    | AdditiveExprNoBF '-' MultiplicativeExpr { }
+    ;
+
+RelationalExpr
+    : AdditiveExpr { }
+    | RelationalExpr '<' AdditiveExpr { }
+    | RelationalExpr '>' AdditiveExpr { }
+    | RelationalExpr '<=' AdditiveExpr { }
+    | RelationalExpr '>=' AdditiveExpr { }
+    | RelationalExpr 'in' AdditiveExpr { }
+    ;
+
+RelationalExprNoIn
+    : AdditiveExpr { }
+    | RelationalExprNoIn '<' AdditiveExpr { }
+    | RelationalExprNoIn '>' AdditiveExpr { }
+    | RelationalExprNoIn '<=' AdditiveExpr { }
+    | RelationalExprNoIn '>=' AdditiveExpr { }
+    ;
+
+RelationalExprNoBF
+    : AdditiveExprNoBF { }
+    | RelationalExprNoBF '<' AdditiveExpr { }
+    | RelationalExprNoBF '>' AdditiveExpr { }
+    | RelationalExprNoBF '<=' AdditiveExpr { }
+    | RelationalExprNoBF '>=' AdditiveExpr { }
+    | RelationalExprNoBF 'in' AdditiveExpr { }
+    ;
+
+EqualityExpr
+    : RelationalExpr { }
+    | EqualityExpr '==' RelationalExpr { }
+    | EqualityExpr '!=' RelationalExpr { }
+    | EqualityExpr '===' RelationalExpr { }
+    | EqualityExpr '!==' RelationalExpr { }
+    ;
+
+EqualityExprNoIn
+    : RelationalExprNoIn { }
+    | EqualityExprNoIn '==' RelationalExprNoIn { }
+    | EqualityExprNoIn '!=' RelationalExprNoIn { }
+    | EqualityExprNoIn '===' RelationalExprNoIn { }
+    | EqualityExprNoIn '!==' RelationalExprNoIn { }
+    ;
+
+EqualityExprNoBF
+    : RelationalExprNoBF { console.log("fuck") }
+    | EqualityExprNoBF '==' RelationalExpr { }
+    | EqualityExprNoBF '!=' RelationalExpr { }
+    | EqualityExprNoBF '===' RelationalExpr { }
+    | EqualityExprNoBF '!==' RelationalExpr { }
+    ;
+
+LogicalANDExpr
+    : EqualityExpr { }
+    | LogicalANDExpr '&&' EqualityExpr { }
+    ;
+
+LogicalANDExprNoIn
+    : EqualityExprNoIn { }
+    | LogicalANDExprNoIn '&&' EqualityExprNoIn { }
+    ;
+
+LogicalANDExprNoBF
+    : EqualityExprNoBF { }
+    | LogicalANDExprNoBF '&&' EqualityExpr { }
+    ;
+
+LogicalORExpr
+    : LogicalANDExpr { }
+    | LogicalORExpr '||' LogicalANDExpr { }
+    ;
+
+LogicalORExprNoIn
+    : LogicalANDExprNoIn { }
+    | LogicalORExprNoIn '||' LogicalANDExprNoIn { }
+    ;
+
+LogicalORExprNoBF
+    : LogicalANDExprNoBF { }
+    | LogicalORExprNoBF '||' LogicalANDExpr { }
+    ;
+
+
+LambdaParameterList
+    : 'ident' { }
+    | 'ident' ':' Expr { }
+    | LambdaParameterList ',' 'ident' { }
+    | LambdaParameterList ',' 'ident' ':' Expr { }
+    ;
+
+LambdaExpr
+  :'ident' '=>' AssignmentExpr { console.log("curry 0") }
+  | '(' ')=>' AssignmentExpr
+  | '(' 'idnet' ')=>' AssignmentExpr
+  | '(' 'idnet' ':' Expr ')=>' AssignmentExpr
+  | '(' 'idnet' ',' ')=>' AssignmentExpr
+  | '(' 'idnet' ':' Expr ',' LambdaParameterList ')=>' AssignmentExpr
+  | '(' 'idnet' ',' LambdaParameterList ')=>' AssignmentExpr
+  | '(' 'idnet' ':' Expr ',' LambdaParameterList ',' ')=>' AssignmentExpr
+  | '(' 'idnet' ',' LambdaParameterList ',' ')=>' AssignmentExpr
+  ;
+
+AssignmentExpr
+    : LogicalORExpr { console.log('fuck1'); }
+    /* | StmtExpr { } */
+    | LambdaExpr { console.log('fuck2'); }
+    | LeftHandSideExpr AssignmentOperator Expr { console.log(" assign "); }
+    ;
+
+AssignmentExprNoIn
+    : LogicalORExprNoIn { console.log('fuck3'); }
+    | LeftHandSideExpr AssignmentOperator Expr { console.log(" assign "); }
+    ;
+
+AssignmentExprNoBF
+    : LogicalORExprNoBF { console.log('fuck4'); }
+    | LeftHandSideExprNoBF AssignmentOperator Expr { console.log(" assign "); }
+    ;
+
+AssignmentOperator
+    : '=' { console.log("assignment") }
+    | '+=' { }
+    | '-=' { }
+    | '*=' { }
+    | '/=' { }
+    | '<<=' { }
+    | '>>=' { }
+    | '>>>=' { }
+    | '&=' { }
+    | '^=' { }
+    | '|=' { }
+    | '%=' { }
+    ;
+
+ExprNoIn
+    : AssignmentExprNoIn { }
+    ;
+
+IfElse
+  : 'if' '(' Expr ')' Stmt %prec IF_WITHOUT_ELSE { }
+  | 'if' '(' Expr ')' Stmt 'else' Stmt { }
+  ;
+
+Later : 'later' '(' Expr ')' Stmt { };
+
+Etypes
+  : 'me' { }
+  | 'music' { }
+  | 'leave' { }
+  | 'join' { }
+  | 'new-host' { }
+  | 'msg' { }
+  | 'dm' { }
+  | 'dmto' { }
+  | 'newtab' { }
+  | 'exittab' { }
+  | 'exitalarm' { }
+  | 'musicbeg' { }
+  | 'musicend' { }
+  | 'kick' { }
+  | 'ban' { }
+  | 'unban' { }
+  | 'roll' { }
+  | 'room-profile' { }
+  | 'new-description' { }
+  | 'lounge' { }
+  | '*' { }
+  ;
+
+Event : 'event' Etypes Stmt { };
+
+Going : 'going' 'ident' { };
+
+Visit : 'visit' 'ident' { };
+
+/* VariableDeclarationListNoIn */
+    /* : 'ident' { } */
+    /* | 'ident' InitializerNoIn { } */
+    /* | VariableDeclarationListNoIn ',' 'ident' { } */
+    /* | VariableDeclarationListNoIn ',' 'ident' InitializerNoIn { } */
+    /* ; */
+
+/* InitializerNoIn */
+    /* : '=' AssignmentExprNoIn { } */
+    /* ; */
+
+ExprNoInOpt
+    : { }
+    | ExprNoIn { }
+    ;
+
+Iteration :
+    'do' Stmt 'while' '(' Expr ')' ';' { }
+    | 'do' Stmt 'while' '(' Expr ')' error { }
+    | 'while' '(' Expr ')' Stmt { }
+    | 'for' '(' ExprNoInOpt ';' ExprOpt ';' ExprOpt ')' Stmt { }
+    /* | 'for' '(' VAR VariableDeclarationListNoIn ';' ExprOpt ';' ExprOpt ')' Stmt */
+    | 'for' '(' LeftHandSideExpr 'in' Expr ')' Stmt { }
+    | 'for' '(' LeftHandSideExpr 'of' Expr ')' Stmt { }
+    ;
+
+Compound
+  : '{' '}' { console.log("Object"); }
+  | '{' Stmts '}' { console.log("Scope"); }
+  | '{' PropertyList '}' { console.log("Object"); }
+  | '{' PropertyList ',' '}' { console.log("Object"); }
+  ;
+
+StmtExpr
+  : IfElse { }
+  | Visit { }
+  | Going { }
+  | Event { }
+  | Later { }
+  | Iteration { }
+  | State { }
+  | Compound { }
+  ;
+
+ExprOpt
+  : { }
+  | Expr { }
+  ;
+
+Stmts
+  : Stmt { }
+  | Stmt Stmts { }
+  ;
+
+Stmt
+  : StmtExpr { console.log("stmt expr"); }
+  | Expr Delimiter { console.log("expr;"); }
+  | Expr error { console.log("patched ; on Stmt") }
+  | Delimiter { console.log("delimiter"); }
+  ;

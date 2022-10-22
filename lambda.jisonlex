@@ -132,7 +132,7 @@ floating      ("0"|{posdigit}{digit}*)"."({digit}*{posdigit}|0)
   return 'string';
 }
 
-"'"(\\\'|[^\n])*"'" {
+"'"(\\\'|[^\n'])*"'" {
   let i = 1, acc = '"';
   while(i < yytext.length - 1){
     if(yytext[i] == '\\' && i + 1 < yytext.length - 1){
