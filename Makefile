@@ -16,5 +16,5 @@ clean:
 	rm -rf lambda-lexer.js
 
 ext:
-	cp *-lambda.mjs $$HOME/GitHub/drrr-botext/setting/script/
-	cp lambda-lexer.mjs $$HOME/GitHub/drrr-botext/setting/script/
+	cp *-lambda.mjs $$HOME/GitHub/drrr-botext/lib/
+	cp lambda-lexer.mjs $$HOME/GitHub/drrr-botext/lib/
