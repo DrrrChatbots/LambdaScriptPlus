@@ -17,6 +17,19 @@ import { Parser
   , Call, Lambda, Val, Var, Sym, Void, Proc
 } from "./parse-lambda.mjs";
 
+function censor(censor){
+  var i = 0;
+  return function(key, value) {
+    if(i !== 0 && typeof(censor) === 'object'
+      && typeof(value) == 'object' && censor == value)
+      return '[Circular]';
+    if(i >= 29) // seems to be a harded maximum of 30 serialized objects?
+      return '[Unknown]';
+    ++i; // so we know we aren't using the original object anymore
+    return value;
+  }
+}
+
 const DUMP = false;
 const NONE = undefined;
 
@@ -127,7 +140,8 @@ class Machine {
     this.val = NONE;
     this.timers = {};
     this.events = {};
-    this.top = pushEnv();
+    let top = pushEnv();
+    this.top = insert(top, "top", top.tab)
     this.states = states;
     this.scops = [stmts];
     this.stmts = null;
@@ -524,7 +538,8 @@ class Machine {
       default:
         throw new MachineException(
           "ImplError", null, expr.tok,
-          `ImplError: Invalid ${expr.type || JSON.stringify(expr, null, 2)} expression`
+          `ImplError: Invalid ${expr.type ||
+              JSON.stringify(expr, censor(expr), 2)} expression`
         );
     }
   }
@@ -637,6 +652,16 @@ class Machine {
             this.tick += 1;
             this.cur = stmt.state;
             let stateStmt = this.findState(stmt);
+            let args = stmt.args.map(
+              arg => this.eval(env, arg));
+            if(stateStmt.type !== 'arrow'){
+              throw new MachineException(
+                  "ImplError", null, stateStmt,
+                  `ImplError: state stmt must be lifted as lambda`
+                );
+            }
+            stateStmt = Call("()", stateStmt,
+              args.map((v, i) => Val(v, stmt.args[i].tok)));
             setTimeout(() =>
               this.execute(this.env, [[stateStmt]]), 0);
             return [false, undefined];
